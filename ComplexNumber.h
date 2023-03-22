@@ -10,11 +10,11 @@
 
 class ComplexNumber {
 
+public:
+
     // a + bi
     double a;
     double b;
-
-public:
 
     // Constructors
     ComplexNumber();
