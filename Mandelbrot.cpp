@@ -12,6 +12,7 @@ void step(ComplexNumber& z, ComplexNumber& c);
 int iterate(ComplexNumber& c, int max_it);
 void print(std::vector<std::vector<int>>& img, int max_it);
 std::vector<std::vector<int>> get_img(u_int16_t w, u_int16_t h, double left, double right, double bottom, double top, u_int16_t max_it);
+std::vector<ComplexNumber> simulate(sf::Vector2f pos, u_int16_t max_it);
 
 int main() {
     u_int16_t w = 2560, h = 1440;
@@ -19,12 +20,26 @@ int main() {
     sf::RenderWindow window(sf::VideoMode(w, h), "Mandelbrot");
     window.setFramerateLimit(15);
 
-    double left = -0.85, right = -0.65;
-    double bottom = 0.05, top = 0.18;
+    double left = -2.2, right = 1.1;
+    double bottom = -1.1, top = 1.1;
 
     u_int16_t max_it = 255;
 
     auto img = get_img(w, h, left, right, bottom, top, max_it);
+
+    sf::Vector2f pos(0.0, 0.0);
+
+    std::vector<ComplexNumber> traced = simulate(pos, max_it);
+    auto trace = new sf::Vertex[traced.size()];
+
+    for (int i = 0; i < traced.size(); i++) {
+        double x = (left - traced[i].a) / ((left - right) / w);
+        double y = (traced[i].b + bottom) / ((bottom - top) / h);
+
+        const sf::Vertex vert(sf::Vector2f((float) x, (float) y), sf::Color(200, 0, 0));
+
+        trace[i] = vert;
+    }
 
     while (window.isOpen()) {
         sf::Event event{};
@@ -42,7 +57,7 @@ int main() {
         for (int i = 0; i < h; i++) {
             for (int j = 0; j < w; j++) {
                 int pixel = img[i][j];
-                const sf::Vertex vert(sf::Vector2f(j, i), sf::Color(pixel * 1, pixel * 1, pixel * 1));
+                const sf::Vertex vert(sf::Vector2f((float) j, (float) i), sf::Color(pixel / 1, pixel / 1, pixel / 1));
 
                 pixels[i * w + j] = vert;
             }
@@ -50,20 +65,46 @@ int main() {
 
         pixel_buffer.update(pixels, w * h, 0);
 
-        auto trace = new sf::Vertex[max_it];
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right)) {
+            pos.x = (float) (left + (double) sf::Mouse::getPosition(window).x * (right - left) / (double) w);
+            pos.y = (float) (bottom + (double) (h - sf::Mouse::getPosition(window).y) * (top - bottom) / (double) h);
 
-        sf::VertexBuffer trace_buffer;
-        trace_buffer.create(max_it);
+            traced = simulate(pos, max_it);
+            trace = new sf::Vertex[traced.size()];
 
-        trace = simulate(sf::Mouse::getPosition());
+            for (int i = 0; i < traced.size(); i++) {
+                double x = (left - traced[i].a) / ((left - right) / w);
+                double y = (traced[i].b + bottom) / ((bottom - top) / h);
 
-        trace_buffer.update(trace, max_it, 0);
+                const sf::Vertex vert(sf::Vector2f((float) x, (float) y), sf::Color(127, 0, 0));
+
+                trace[i] = vert;
+            }
+        }
 
         window.draw(pixel_buffer);
-        window.draw(trace_buffer);
+        window.draw(trace, traced.size(), sf::LinesStrip);
 
         window.display();
     }
+}
+
+std::vector<ComplexNumber> simulate(sf::Vector2f pos, u_int16_t max_it) {
+    std::vector<ComplexNumber> out;
+
+    ComplexNumber z(0.0, 0.0);
+    ComplexNumber c((double) pos.x, (double) pos.y);
+    for (int i = 0; i < max_it; i++) {
+        z = z * z + c;
+
+        out.push_back(z);
+
+        if (z.magnitude() > 5.0) {
+            break;
+        }
+    }
+
+    return out;
 }
 
 std::vector<std::vector<int>> get_img(u_int16_t w, u_int16_t h, double left, double right, double bottom, double top, u_int16_t max_it) {
