@@ -33,10 +33,10 @@ int main() {
     auto trace = new sf::Vertex[traced.size()];
 
     for (int i = 0; i < traced.size(); i++) {
-        double x = (left - traced[i].a) / ((left - right) / w);
-        double y = (traced[i].b + bottom) / ((bottom - top) / h);
+        double x = (traced[i].a - left) / ((right - left) / w);
+        double y = (traced[i].b - bottom) / ((top - bottom) / h);
 
-        const sf::Vertex vert(sf::Vector2f((float) x, (float) y), sf::Color(200, 0, 0));
+        const sf::Vertex vert(sf::Vector2f((float) x, (float) (h - y)), sf::Color(127, 0, 0));
 
         trace[i] = vert;
     }
@@ -95,7 +95,7 @@ std::vector<ComplexNumber> simulate(sf::Vector2f pos, u_int16_t max_it) {
     ComplexNumber z(0.0, 0.0);
     ComplexNumber c((double) pos.x, (double) pos.y);
     for (int i = 0; i < max_it; i++) {
-        z = z * z + c;
+        step(z, c);
 
         out.push_back(z);
 
