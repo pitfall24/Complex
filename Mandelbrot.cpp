@@ -4,9 +4,11 @@
 
 #include <iostream>
 #include <vector>
-#include "ComplexNumber.h"
+#include <complex>
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
+
+typedef std::complex<double> ComplexNumber;
 
 void step(ComplexNumber& z, ComplexNumber& c);
 int iterate(ComplexNumber& c, int max_it);
