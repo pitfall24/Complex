@@ -18,7 +18,7 @@ int main() {
     u_int16_t w = 2560, h = 1440;
 
     sf::RenderWindow window(sf::VideoMode(w, h), "Mandelbrot");
-    window.setFramerateLimit(15);
+    window.setFramerateLimit(60);
 
     double left = -2.2, right = 1.1;
     double bottom = -1.1, top = 1.1;
@@ -57,7 +57,8 @@ int main() {
         for (int i = 0; i < h; i++) {
             for (int j = 0; j < w; j++) {
                 int pixel = img[i][j];
-                const sf::Vertex vert(sf::Vector2f((float) j, (float) i), sf::Color(pixel / 1, pixel / 1, pixel / 1));
+                int val = (int) (16 * std::sqrt(pixel));
+                const sf::Vertex vert(sf::Vector2f((float) j, (float) i), sf::Color(val / 1, val / 1, val / 1));
 
                 pixels[i * w + j] = vert;
             }
@@ -76,7 +77,8 @@ int main() {
                 double x = (left - traced[i].a) / ((left - right) / w);
                 double y = (traced[i].b + bottom) / ((bottom - top) / h);
 
-                const sf::Vertex vert(sf::Vector2f((float) x, (float) y), sf::Color(127, 0, 0));
+                const sf::Vertex vert(sf::Vector2f((float) x,(float)
+                y), sf::Color(127, 0, 0));
 
                 trace[i] = vert;
             }
