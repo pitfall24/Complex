@@ -42,6 +42,7 @@ int main() {
 
     std::vector<ComplexNumber> traced = simulate(pos, max_it);
     auto trace = new sf::Vertex[traced.size()];
+    auto pixels = new sf::Vertex[w * h];
 
     for (int i = 0; i < traced.size(); i++) {
         double x = (traced[i].a - left) / ((right - left) / w);
@@ -59,8 +60,6 @@ int main() {
                 window.close();
             }
         }
-
-        auto pixels = new sf::Vertex[w * h];
 
         sf::VertexBuffer pixel_buffer;
         pixel_buffer.create(w * h);
@@ -84,7 +83,6 @@ int main() {
             text.setString(std::to_string(pos.x) + (pos.y >= 0 ? " + " : " - ") + std::to_string(abs(pos.y)) + "i");
 
             traced = simulate(pos, max_it);
-            trace = new sf::Vertex[traced.size()];
 
             for (int i = 0; i < traced.size(); i++) {
                 double x = (traced[i].a - left) / ((right - left) / w);
@@ -102,6 +100,9 @@ int main() {
 
         window.display();
     }
+
+    delete [] trace;
+    delete [] pixels;
 }
 
 std::vector<ComplexNumber> simulate(sf::Vector2f pos, u_int16_t max_it) {
